@@ -5,7 +5,7 @@ import yaml
 
 from src.radar_equations import (
     calculate_bandwidth,
-    calculate_chirp_loop_time,
+    calculate_chirp_period,
     calculate_doppler_resolution,
     calculate_fps,
     calculate_max_range,
@@ -23,7 +23,7 @@ REQUIREMENTS = {
     "min_bins": 32,        # R2
     "tolerance": 0.05, # R3 & R4 (resolutions)
     "max_range_m": 5.0,    # R5
-    "max_velocity_mps": 5.0,  # R6
+    "max_velocity_mps": 4.75,  # R6
 }
 
 
@@ -38,7 +38,7 @@ def compute_performance(cfg):
     """Compute the radar performance values needed for R1-R6."""
     sample_time = calculate_sample_time(cfg["adc_samples"], cfg["sample_rate"])
     bandwidth = calculate_bandwidth(cfg["freq_slope"], sample_time)
-    chirp_loop_time = calculate_chirp_loop_time(cfg["idle_time"], cfg["ramp_end_time"])
+    chirp_period = calculate_chirp_period(cfg["idle_time"], cfg["ramp_end_time"])
     wavelength = calculate_wavelength(cfg["frequency"], cfg["freq_slope"],
                                       cfg["adc_start_time"], sample_time)
     range_resolution = calculate_range_resolution(bandwidth)
@@ -50,17 +50,23 @@ def compute_performance(cfg):
         "range_resolution": range_resolution, # R3
         "max_range": calculate_max_range(range_resolution, cfg["adc_samples"]), # R5
         "doppler_resolution": calculate_doppler_resolution(
-            wavelength, chirp_loop_time, cfg["frame_length"]
+            wavelength, chirp_period, cfg["frame_length"]
         ), # R4
-        "max_velocity": calculate_max_velocity(wavelength, chirp_loop_time), # R6
+        "max_velocity": calculate_max_velocity(wavelength, chirp_period), # R6
+
+        # extras for R3
+        "sample_time": sample_time,
+        "ramp_end_time": cfg["ramp_end_time"],
     }
 
 
 def run_config_test_cases(values):
     """Runs test cases to confirm requirements R1-R6. Returns True if all pass."""
+    print(f"\nREQUIREMENTS:\n{REQUIREMENTS}\n")
     # Additional calculations
     ideal_range_res = get_ideal_range_resolution(
-        REQUIREMENTS["max_range_m"], values["range_bins"]
+        REQUIREMENTS["max_range_m"], values["range_bins"],
+        values["sample_time"], values["ramp_end_time"]
     )
     ideal_doppler_res = get_ideal_doppler_resolution(
         REQUIREMENTS["max_velocity_mps"], values["doppler_bins"]

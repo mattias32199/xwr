@@ -5,14 +5,14 @@
 # system = AWRSystem(**config)
 radar:  # -> AWRConfig
   port: null  # auto-detect
-  frequency: 76.0 # (default=77.0)
-  idle_time: 16.5 # (default=200.0)
+  frequency: 77.0 # (default=77.0)
+  idle_time: 7.0 # (default=200.0)
   adc_start_time: 5.7 # keep
-  ramp_end_time: 46.0 # (default=59.00)
+  ramp_end_time: 59.00 # (default=59.00)
   tx_start_time: 1.0 # keep
-  freq_slope: 100.00 # 67.012
+  freq_slope: 67.012 # 67.012
   adc_samples: 128 # keep
-  sample_rate: 3340 # default=(2500)
+  sample_rate: 2500 # default=(2500)
   frame_length: 128 # keep
   frame_period: 100.0 # affects fps (default=125.0)
 
