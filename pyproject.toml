@@ -98,3 +98,8 @@ exclude_also = [
     'class .*\bProtocol\):',
     'raise NotImplementedError',
 ]
+
+[tool.uv.workspace]
+members = [
+    "pipeline",
+]

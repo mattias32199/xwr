@@ -132,6 +132,8 @@ ENV/
 env.bak/
 venv.bak/
 
+.mac_venv
+
 # Spyder project settings
 .spyderproject
 .spyproject
@@ -165,3 +167,5 @@ cython_debug/
 
 # Rerun recordings
 *.rrd
+
+.DS_Store
