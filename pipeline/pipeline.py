@@ -13,8 +13,10 @@ import xwr
 from xwr.rsp import numpy as xwr_rsp
 
 from src.config_util import load_config
-from src.capture_util import init_logger, save_frames, init_plot
-from src.viz import FrameRateLogger, VisualizationConfig
+from src.capture_util import (
+    init_logger, save_frames, init_plot, live_capture_loop, q_capture_loop
+)
+from src.viz import VisualizationConfig
 
 
 def cli_main(
@@ -50,33 +52,17 @@ def cli_main(
     plot = init_plot(rsp, vis, awr, cfg, rsp_inst)
 
     # Capture loop
-    framerate = FrameRateLogger(log)
-    frames = []
-    start_time = time.time()
-    try:
-        log.info("Starting capture...")
-        for frame in awr.dstream(numpy=True):
-            # Store raw frame
-            frames.append(frame.copy())
-            # Process and visualize
-            dear = np.abs(rsp_inst(frame[None, ...]))
-            framerate.tick()
-            plot.update(dear, framerate.fps)
-            # Check if duration exceeded
-            elapsed = time.time() - start_time
-            if elapsed >= duration:
-                log.info(f"Capture complete ({elapsed:.1f}s, {len(frames)} frames)")
-                break
-
-    except KeyboardInterrupt:
-        log.warning("Capture interrupted by user")
-        awr.stop()
-        raise
+    # frames = live_capture_loop(log, awr, rsp_inst, plot, duration)
+    frames, timestamps = q_capture_loop(log, awr, rsp_inst, plot, duration)
 
     awr.stop()
 
     # Save frames
-    save_frames(frames, output, cfg, awr, log)
+    if not frames:
+        log.error("ERROR??? No frames captured; nothing saved.")
+        return
+    else:
+        save_frames(frames, timestamps, output, cfg, awr, log)
 
 
 if __name__ == "__main__":

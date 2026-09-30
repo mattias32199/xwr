@@ -22,4 +22,4 @@ rerun = [
 ]
 
 [tool.uv.sources]
-xwr = { path = "../", editable = true }
+xwr = { workspace = true }
